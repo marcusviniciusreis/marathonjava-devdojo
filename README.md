@@ -15,6 +15,7 @@ Até o momento, estudei os seguinte conteudos:
 * Operadores
 * Estruturas condicionais
 * Estruturas de repetição
+* Arrays
 
 Novos conteúdos serão adicionados ao repositório conforme avanço nas aulas.
 
@@ -48,7 +49,7 @@ Este repositório faz parte do meu processo de aprendizado e continuará sendo a
 - [x] Operadores
 - [x] Estruturas condicionais
 - [x] Loops
-- [ ] Arrays
+- [x] Arrays
 - [ ] Orientação a Objetos
 - [ ] Classes e Métodos
 - [ ] Herança
