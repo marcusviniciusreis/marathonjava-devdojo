@@ -50,8 +50,8 @@ Este repositório faz parte do meu processo de aprendizado e continuará sendo a
 - [x] Estruturas condicionais
 - [x] Loops
 - [x] Arrays
-- [ ] Orientação a Objetos
-- [ ] Classes e Métodos
+- [x] Orientação a Objetos
+- [x] Classes e Métodos
 - [ ] Herança
 - [ ] Interfaces
 - [ ] Exceptions
