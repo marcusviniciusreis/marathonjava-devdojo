@@ -1,16 +1,37 @@
 package academy.devdojo.maratonajava.javacore.Hheranca.dominio;
 
-public class Pessoa {
-    private String nome;
-    private String cpf;
-    private Endereco endereco;
+import java.sql.SQLOutput;
 
+public class Pessoa {
+    protected String nome;
+    protected String cpf;
+    protected Endereco endereco;
+
+    static {
+        System.out.println("Dentro do bloco estatido de pessoa");
+    }
+    {
+        System.out.println("Dentro do bloco de inicializaçao de pessoa 1");
+    }
+    {
+        System.out.println("Dentro do bloco de inicializaçao de pessoa 2");
+    }
+
+    public Pessoa(String nome){
+        System.out.println("Dentro do construtor de pessoa");
+        this.nome = nome;
+    }
+
+    public Pessoa(String nome, String cpf){
+        this(nome);
+        this.cpf = cpf;
+    }
 
     public void imprime(){
         System.out.println(this.nome);
         System.out.println(this.cpf);
         System.out.println(this.endereco.getRua()+" "+this.endereco.getCep());
-        
+
     }
 
 
