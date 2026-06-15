@@ -1,0 +1,135 @@
+FUNDAMENTAÇÃO TEÓRICA: LOCALDATE, LOCALTIME E LOCALDATETIME
+==========================================================================
+
+INTRODUÇÃO
+------------------------------------
+A partir do Java 8, foi introduzida a nova API de data e hora 
+(java.time), criada para resolver os principais problemas das classes 
+legadas Date e Calendar: mutabilidade, API confusa (meses indexados a 
+partir de 0, anos a partir de 1900) e falta de clareza sobre o que cada 
+classe representa.
+
+LocalDate, LocalTime e LocalDateTime são as classes centrais dessa nova 
+API para representar pontos no tempo "locais" — ou seja, SEM informação de 
+fuso horário (timezone). São todas IMUTÁVEIS e THREAD-SAFE: qualquer 
+operação que "altera" o valor retorna um NOVO objeto, nunca modifica o 
+original.
+
+
+1. LOCALDATE
+------------------------------------
+java.time.LocalDate representa apenas uma DATA (ano, mês e dia), sem 
+horário e sem fuso horário. Exemplo de uso: data de nascimento, data de 
+vencimento, feriados.
+
+    LocalDate hoje = LocalDate.now();
+    LocalDate data = LocalDate.of(2026, 6, 14); // ano, mês, dia (mês NÃO é 
+                                                  // indexado em 0!)
+
+    System.out.println(data.getYear());       // 2026
+    System.out.println(data.getMonth());      // JUNE
+    System.out.println(data.getDayOfMonth()); // 14
+    System.out.println(data.getDayOfWeek());  // SUNDAY
+
+Operações (sempre retornam novo objeto, pois é imutável):
+
+    LocalDate amanha = hoje.plusDays(1);
+    LocalDate mesPassado = hoje.minusMonths(1);
+    LocalDate proximoAno = hoje.plusYears(1);
+
+Comparações:
+
+    data.isBefore(hoje); // true/false
+    data.isAfter(hoje);  // true/false
+    data.isEqual(hoje);  // true/false
+    data.equals(hoje);   // também funciona
+
+
+2. LOCALTIME
+------------------------------------
+java.time.LocalTime representa apenas um HORÁRIO (hora, minuto, segundo, 
+nanossegundo), sem data e sem fuso horário. Exemplo de uso: horário de 
+abertura de uma loja, horário de uma reunião recorrente.
+
+    LocalTime agora = LocalTime.now();
+    LocalTime hora = LocalTime.of(15, 30, 0); // hora, minuto, segundo
+
+    System.out.println(hora.getHour());   // 15
+    System.out.println(hora.getMinute()); // 30
+    System.out.println(hora.getSecond()); // 0
+
+Operações:
+
+    LocalTime maisTarde = hora.plusHours(2);
+    LocalTime maisCedo = hora.minusMinutes(15);
+
+Comparações:
+
+    hora.isBefore(agora);
+    hora.isAfter(agora);
+
+
+3. LOCALDATETIME
+------------------------------------
+java.time.LocalDateTime combina LocalDate + LocalTime em um único objeto, 
+representando DATA e HORÁRIO juntos, ainda sem informação de fuso horário. 
+É o substituto direto mais próximo do antigo Date/Calendar para a maioria 
+dos casos de uso comuns.
+
+    LocalDateTime agora = LocalDateTime.now();
+    LocalDateTime dataHora = LocalDateTime.of(2026, 6, 14, 15, 30, 0);
+
+    // Combinando LocalDate + LocalTime
+    LocalDate data = LocalDate.of(2026, 6, 14);
+    LocalTime hora = LocalTime.of(15, 30);
+    LocalDateTime combinado = LocalDateTime.of(data, hora);
+
+Operações:
+
+    LocalDateTime futuro = agora.plusDays(7).plusHours(3);
+    LocalDateTime passado = agora.minusWeeks(2);
+
+Extraindo partes:
+
+    LocalDate apenasData = dataHora.toLocalDate();
+    LocalTime apenasHora = dataHora.toLocalTime();
+
+
+4. FORMATAÇÃO COM DATETIMEFORMATTER
+------------------------------------
+Para converter essas classes em texto (ou vice-versa), usa-se 
+java.time.format.DateTimeFormatter — o substituto moderno do antigo 
+SimpleDateFormat, com a vantagem de ser IMUTÁVEL e THREAD-SAFE.
+
+    DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    // Formatação: LocalDateTime -> String
+    String texto = dataHora.format(formato);
+    System.out.println(texto); // "14/06/2026 15:30"
+
+    // Parsing: String -> LocalDateTime
+    LocalDateTime parsed = LocalDateTime.parse("14/06/2026 15:30", formato);
+
+
+RESUMO GERAL
+------------------------------------
+LocalDate     -> apenas DATA (ano, mês, dia)
+LocalTime     -> apenas HORÁRIO (hora, minuto, segundo)
+LocalDateTime -> DATA + HORÁRIO combinados
+
+Nenhuma dessas classes possui informação de fuso horário — para isso, 
+existe ZonedDateTime (fora do escopo desta aula).
+
+Vantagens em relação a Date/Calendar:
+- Imutáveis e thread-safe (operações retornam novos objetos).
+- API clara e legível (meses NÃO são indexados a partir de 0).
+- Métodos intuitivos para soma, subtração e comparação de datas/horários.
+- Integração nativa com DateTimeFormatter para formatação/parsing.
+
+Quando usar cada um:
+- LocalDate: quando o horário não importa (datas de nascimento, 
+  vencimentos, feriados).
+- LocalTime: quando a data não importa (horários de funcionamento, 
+  agendas recorrentes).
+- LocalDateTime: quando data e horário juntos são relevantes (timestamps 
+  de eventos locais, agendamentos com hora marcada).

@@ -1,0 +1,29 @@
+Fundamentação teórica: Classes Wrapper (Wrapper Classes)
+Wrapper classes são classes do Java que "encapsulam" um tipo primitivo dentro de um objeto. Para cada um dos 8 tipos primitivos existe uma classe correspondente:
+int     → Integer
+double  → Double
+char    → Character
+boolean → Boolean
+long    → Long
+float   → Float
+byte    → Byte
+short   → Short
+
+Tipos primitivos não são objetos — eles não têm métodos, não podem ser null e não funcionam em estruturas que exigem objetos (como Collections, que só armazenam tipos referência). As wrapper classes resolvem isso "embrulhando" o valor primitivo numa estrutura de objeto.
+Para que servem:
+
+1. Uso em Collections genéricas — List<Integer>, Map<String, Double>, etc. Não é possível usar List<int>.
+2. Métodos utilitários — cada wrapper traz métodos prontos, como Integer.parseInt("10"), Integer.MAX_VALUE, Double.compare(a, b).
+3. Representar ausência de valor — um int nunca pode ser null, mas um Integer pode, o que é útil para indicar "valor não definido" (ex: campos opcionais em banco de dados).
+4. Conversão entre tipos — métodos como parseInt, parseDouble, toString() facilitam conversões entre String e número.
+
+Quando usar:
+
+1. Sempre que precisar armazenar números em Collections (List, Map, Set).
+2. Quando precisar representar a ausência de um valor (null) — ex: um campo numérico opcional.
+3. Ao usar APIs que retornam objetos em vez de primitivos (muito comum em frameworks como JPA/Hibernate).
+
+Quando evitar (e usar primitivos):
+
+1. Em loops e cálculos intensivos, primitivos são mais performáticos (wrapper classes têm overhead de criação de objeto e operações de boxing/unboxing).
+2. Cuidado com comparação usando == em wrappers — compara referências, não valores:
