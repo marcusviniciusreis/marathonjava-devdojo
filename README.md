@@ -52,8 +52,8 @@ Este repositório faz parte do meu processo de aprendizado e continuará sendo a
 - [x] Arrays
 - [x] Orientação a Objetos
 - [x] Classes e Métodos
-- [ ] Herança
-- [ ] Interfaces
-- [ ] Exceptions
+- [x] Herança
+- [x] Interfaces
+- [x] Exceptions
 - [ ] Collections
 - [ ] Streams

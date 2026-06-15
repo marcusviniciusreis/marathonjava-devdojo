@@ -1,0 +1,105 @@
+FUNDAMENTAÇÃO TEÓRICA: CLASSES UTILITÁRIAS - STRING
+=====================================================
+
+1. A CLASSE STRING E IMUTABILIDADE
+------------------------------------
+String em Java é uma classe (não um tipo primitivo), mas possui tratamento 
+especial pela linguagem. A característica mais importante é que Strings são 
+IMUTÁVEIS: uma vez criada, o conteúdo de uma String nunca pode ser alterado. 
+Qualquer operação que pareça "modificar" uma String na verdade cria um novo 
+objeto.
+
+    String nome = "João";
+    nome.concat(" Silva"); // não altera "nome"!
+    nome = nome.concat(" Silva"); // agora sim, "nome" aponta para novo objeto
+
+Por que imutável?
+- Segurança (Strings podem ser usadas como chaves de cache, identificadores)
+- Thread-safety automática
+- Permite o uso do String Pool (explicado abaixo)
+
+
+2. MÉTODOS UTILITÁRIOS PRINCIPAIS
+------------------------------------
+A classe String oferece dezenas de métodos prontos para manipulação:
+
+- Manipulação: substring(), replace(), trim(), toUpperCase(), toLowerCase(), 
+  concat()
+- Busca: indexOf(), contains(), startsWith(), endsWith()
+- Comparação: equals(), equalsIgnoreCase(), compareTo()
+- Verificação: isEmpty(), isBlank(), length()
+- Divisão/Junção: split(), String.join()
+- Formatação: String.format(), formatted()
+
+    String texto = "  Java é Top  ";
+    System.out.println(texto.trim().toUpperCase()); // "JAVA É TOP"
+    System.out.println(texto.contains("Top"));       // true
+
+Comparação: == vs equals()
+
+Igual às wrapper classes, == compara referências de memória, não conteúdo:
+
+    String a = "Java";
+    String b = "Java";
+    String c = new String("Java");
+
+    a == b;           // true  (mesma referência no String Pool)
+    a == c;           // false (objetos diferentes)
+    a.equals(c);      // true  (mesmo conteúdo)
+
+
+3. DESEMPENHO E STRING POOL
+------------------------------------
+O String Pool é uma área especial da memória heap onde o Java armazena 
+literais de String para reaproveitamento. Quando você escreve "Java" 
+diretamente no código, o JVM verifica se essa String já existe no pool 
+— se sim, reutiliza a referência; se não, cria uma nova entrada.
+
+    String a = "teste"; // vai para o pool
+    String b = "teste"; // reutiliza a referência do pool
+    String c = new String("teste"); // força criação de novo objeto, fora do pool
+
+Impacto da imutabilidade na performance
+
+Como Strings são imutáveis, operações de concatenação em loop criam múltiplos 
+objetos descartáveis, gerando lixo (garbage) que precisa ser coletado:
+
+    String resultado = "";
+    for (int i = 0; i < 1000; i++) {
+        resultado += i; // cria um NOVO objeto String a cada iteração!
+    }
+
+Cada += cria uma nova String, descartando a anterior — isso gera 1000 objetos 
+intermediários, com alto custo de memória e processamento em loops grandes.
+
+
+4. STRINGBUILDER
+------------------------------------
+Para resolver o problema de performance em concatenações, o Java oferece 
+StringBuilder — uma classe MUTÁVEL que opera sobre um buffer interno, 
+evitando a criação de múltiplos objetos.
+
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < 1000; i++) {
+        sb.append(i); // modifica o MESMO objeto internamente
+    }
+    String resultado = sb.toString();
+
+Métodos principais do StringBuilder:
+- append() — adiciona conteúdo
+- insert() — insere em posição específica
+- delete(), deleteCharAt() — remove conteúdo
+- reverse() — inverte a sequência
+- replace() — substitui parte do conteúdo
+- toString() — converte de volta para String
+
+Quando usar cada um:
+
+| Cenário                                          | Recomendação                        |
+|--------------------------------------------------|--------------------------------------|
+| String fixa, sem muitas alterações               | String                                |
+| Concatenações simples (poucas, fora de loop)     | String (compilador otimiza com        |
+|                                                    | StringBuilder internamente)          |
+| Concatenações em loop ou muitas modificações     | StringBuilder                         |
+| Operações em múltiplas threads simultâneas       | StringBuffer (versão thread-safe do   |
+|                                                    | StringBuilder, mas menos performática)|

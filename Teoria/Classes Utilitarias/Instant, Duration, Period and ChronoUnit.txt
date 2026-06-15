@@ -1,0 +1,155 @@
+FUNDAMENTAÇÃO TEÓRICA: INSTANT, DURATION, PERIOD E CHRONOUNIT
+==========================================================================
+
+INTRODUÇÃO
+------------------------------------
+Enquanto LocalDate, LocalTime e LocalDateTime (java.time) representam um 
+"ponto" específico no tempo de forma legível para humanos (ex: "14 de junho 
+de 2026, 15:30"), as classes Instant, Duration, Period e ChronoUnit servem 
+para MEDIR e CALCULAR intervalos de tempo entre pontos, ou representar 
+timestamps de forma precisa para a máquina.
+
+Essas classes também fazem parte da API java.time (Java 8+), são imutáveis 
+e thread-safe, seguindo o mesmo design moderno.
+
+
+1. INSTANT
+------------------------------------
+java.time.Instant representa um ponto exato na linha do tempo, medido em 
+segundos (e nanossegundos) desde o Epoch (1º de janeiro de 1970, 00:00:00 UTC).
+
+É o equivalente moderno e imutável ao timestamp que a antiga classe Date 
+representava, mas sem os problemas de mutabilidade e API confusa.
+
+    Instant agora = Instant.now();
+    System.out.println(agora); // ex: 2026-06-14T18:30:00.123Z
+
+Características:
+- Sempre em UTC (não tem conceito de fuso horário/timezone embutido).
+- Ideal para registrar "quando algo aconteceu" de forma precisa e universal 
+  (ex: logs, timestamps de eventos, marcação de criação/atualização de 
+  registros).
+- Para exibir em um fuso horário específico, normalmente se converte para 
+  ZonedDateTime:
+
+    ZonedDateTime zoned = agora.atZone(ZoneId.of("America/Sao_Paulo"));
+
+Principais métodos:
+- now() — instante atual
+- plusSeconds(), minusSeconds(), plus(), minus() — soma/subtrai tempo
+- isBefore(), isAfter() — comparação entre instantes
+- toEpochMilli() — converte para milissegundos desde o Epoch
+
+
+2. DURATION
+------------------------------------
+java.time.Duration representa uma quantidade de tempo medida em unidades 
+de TEMPO (horas, minutos, segundos, nanossegundos) — ou seja, é baseada em 
+TEMPO CRONOLÓGICO, útil para medir intervalos entre dois Instant ou 
+LocalDateTime.
+
+    Instant inicio = Instant.now();
+    // ... algum processamento ...
+    Instant fim = Instant.now();
+
+    Duration duracao = Duration.between(inicio, fim);
+    System.out.println(duracao.toMillis()); // tempo decorrido em ms
+    System.out.println(duracao.getSeconds()); // tempo decorrido em segundos
+
+Criação direta:
+
+    Duration tresHoras = Duration.ofHours(3);
+    Duration meiaHora = Duration.ofMinutes(30);
+    Duration total = tresHoras.plus(meiaHora); // soma durações
+
+Principais métodos:
+- between(inicio, fim) — calcula a diferença entre dois pontos no tempo
+- ofSeconds(), ofMinutes(), ofHours(), ofDays() — cria Duration a partir 
+  de uma unidade
+- toMillis(), toSeconds(), toMinutes(), toHours() — converte para a unidade 
+  desejada
+- plus(), minus() — soma/subtrai durações
+
+Uso típico: medir tempo de execução de processos, definir timeouts, 
+calcular intervalos entre timestamps.
+
+
+3. PERIOD
+------------------------------------
+java.time.Period representa uma quantidade de tempo em termos de DATA 
+(anos, meses, dias) — ou seja, é baseado em CALENDÁRIO, ao contrário de 
+Duration (que é baseado em tempo cronológico). Usado com LocalDate.
+
+    LocalDate nascimento = LocalDate.of(2000, 6, 14);
+    LocalDate hoje = LocalDate.of(2026, 6, 14);
+
+    Period periodo = Period.between(nascimento, hoje);
+    System.out.println(periodo.getYears());  // 26
+    System.out.println(periodo.getMonths()); // 0
+    System.out.println(periodo.getDays());   // 0
+
+Criação direta:
+
+    Period doisAnos = Period.ofYears(2);
+    Period tresMeses = Period.ofMonths(3);
+    Period dezDias = Period.ofDays(10);
+
+Principais métodos:
+- between(dataInicio, dataFim) — calcula a diferença em anos/meses/dias
+- ofYears(), ofMonths(), ofDays(), of(anos, meses, dias) — cria Period
+- getYears(), getMonths(), getDays() — recupera cada componente
+- plus(), minus() — soma/subtrai períodos de uma data
+
+DIFERENÇA-CHAVE: Duration vs Period
+- Duration: baseado em tempo (segundos/nanossegundos) — ex: "exatos 90 
+  minutos", sempre tem o mesmo valor absoluto.
+- Period: baseado em calendário (anos/meses/dias) — ex: "1 mês" pode 
+  representar 28, 30 ou 31 dias dependendo do mês de referência.
+
+
+4. CHRONOUNIT
+------------------------------------
+java.time.temporal.ChronoUnit é um enum que representa UNIDADES DE TEMPO 
+(segundos, minutos, horas, dias, meses, anos, etc.) e é usado principalmente 
+para calcular a diferença entre dois pontos no tempo em uma unidade 
+específica, de forma mais flexível que Duration ou Period isolados.
+
+    LocalDateTime inicio = LocalDateTime.of(2026, 1, 1, 0, 0);
+    LocalDateTime fim = LocalDateTime.of(2026, 6, 14, 18, 30);
+
+    long diasEntre = ChronoUnit.DAYS.between(inicio, fim);
+    long horasEntre = ChronoUnit.HOURS.between(inicio, fim);
+    long mesesEntre = ChronoUnit.MONTHS.between(inicio, fim);
+
+Principais valores do enum:
+- ChronoUnit.SECONDS, MINUTES, HOURS
+- ChronoUnit.DAYS, WEEKS, MONTHS, YEARS
+- ChronoUnit.DECADES, CENTURIES, MILLENNIA
+
+Vantagem do ChronoUnit:
+- Permite calcular a diferença em QUALQUER unidade, sem precisar escolher 
+  entre Duration (tempo) ou Period (calendário) — funciona como uma 
+  alternativa mais genérica para o método between().
+- Pode ser usado tanto com tipos baseados em tempo (Instant, LocalTime) 
+  quanto baseados em data (LocalDate, LocalDateTime), desde que a unidade 
+  seja compatível com o tipo.
+
+
+RESUMO GERAL
+------------------------------------
+Instant     -> ponto exato no tempo (timestamp UTC, para a máquina)
+Duration    -> intervalo de tempo cronológico (segundos, horas) - "quanto 
+               tempo passou"
+Period      -> intervalo de tempo em calendário (anos, meses, dias) - 
+               "quanto tempo passou em termos de datas"
+ChronoUnit  -> enum flexível para calcular diferenças em qualquer unidade 
+               de tempo entre dois pontos
+
+Quando usar cada um:
+- Instant: registrar "quando" algo aconteceu (logs, auditoria, timestamps).
+- Duration: medir "quanto tempo" algo demorou (performance, timeouts, 
+  intervalos cronológicos).
+- Period: calcular diferenças entre datas em termos humanos (idade, tempo 
+  de contrato, prazos em dias/meses/anos).
+- ChronoUnit: quando precisar de flexibilidade para calcular em uma unidade 
+  específica sem se prender a Duration ou Period.

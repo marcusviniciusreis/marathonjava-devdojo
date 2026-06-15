@@ -1,0 +1,111 @@
+FUNDAMENTAÇÃO TEÓRICA: CLASSES UTILITÁRIAS - DATE, CALENDAR E DATEFORMAT
+==========================================================================
+
+1. A CLASSE DATE
+------------------------------------
+java.util.Date representa um instante no tempo, internamente armazenado como 
+o número de milissegundos desde 1º de janeiro de 1970, 00:00:00 UTC 
+(conhecido como Epoch).
+
+    Date agora = new Date();
+    System.out.println(agora); // ex: Sun Jun 14 15:30:00 BRT 2026
+
+Limitações da classe Date:
+
+- Mutável — pode ser alterada após criação, o que é uma fonte comum de bugs.
+- Maioria dos métodos depreciados — métodos como getYear(), getMonth(), 
+  getDate() foram marcados como @Deprecated desde o Java 1.1, pois 
+  misturavam responsabilidades de data com formatação.
+- Não tem suporte nativo a fusos horários e operações de cálculo (somar 
+  dias, meses, etc.) de forma simples.
+- API confusa — meses são indexados a partir de 0 (janeiro = 0), e anos 
+  são contados a partir de 1900.
+
+Por essas razões, Date hoje serve basicamente como um "envelope" de 
+timestamp, sendo usado em conjunto com Calendar ou (preferencialmente, em 
+código moderno) com a API java.time (Java 8+, fora do escopo desta aula).
+
+
+2. A CLASSE CALENDAR
+------------------------------------
+java.util.Calendar foi criada para suprir as limitações do Date, permitindo 
+manipulação de datas baseada em CAMPOS (ano, mês, dia, hora, etc.) de forma 
+mais legível e poderosa.
+
+Calendar é uma classe abstrata; normalmente se obtém uma instância via 
+getInstance(), que retorna um GregorianCalendar por padrão.
+
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(2026, Calendar.JUNE, 14); // ano, mês (0-indexado!), dia
+    calendar.add(Calendar.DAY_OF_MONTH, 10); // soma 10 dias
+    calendar.get(Calendar.YEAR); // recupera o campo ano
+
+    Date data = calendar.getTime(); // converte Calendar -> Date
+    calendar.setTime(data);          // converte Date -> Calendar
+
+Principais métodos:
+- set(campo, valor) — define um campo específico
+- get(campo) — recupera um campo específico
+- add(campo, quantidade) — soma/subtrai valores a um campo (com ajuste 
+  automático de overflow, ex: somar dias pode mudar o mês)
+- getTime() / setTime() — conversão entre Calendar e Date
+- getInstance() — retorna instância configurada com fuso horário e locale 
+  padrão do sistema
+
+Atenção: assim como Date, Calendar também é MUTÁVEL e tem a pegadinha do 
+mês indexado a partir de 0 (Calendar.JANUARY = 0).
+
+
+3. DATEFORMAT
+------------------------------------
+java.text.DateFormat (e sua subclasse mais usada, SimpleDateFormat) é 
+responsável por CONVERTER ENTRE OBJETOS DATE E REPRESENTAÇÕES TEXTUAIS 
+(formatação e parsing), permitindo definir padrões customizados de exibição.
+
+    SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+    // Formatação: Date -> String
+    String dataTexto = formato.format(new Date());
+    System.out.println(dataTexto); // "14/06/2026 15:30:00"
+
+    // Parsing: String -> Date
+    Date data = formato.parse("14/06/2026 15:30:00");
+
+Símbolos de padrão mais comuns:
+
+| Símbolo | Significado              | Exemplo  |
+|---------|---------------------------|----------|
+| yyyy    | Ano com 4 dígitos          | 2026     |
+| MM      | Mês com 2 dígitos          | 06       |
+| dd      | Dia com 2 dígitos          | 14       |
+| HH      | Hora (0-23)                | 15       |
+| mm      | Minutos                    | 30       |
+| ss      | Segundos                   | 00       |
+| EEEE    | Dia da semana (extenso)    | Sunday   |
+
+Atenção com parse(): o método lança ParseException (checked), então 
+precisa ser tratado com try-catch ou propagado com throws.
+
+    try {
+        Date data = formato.parse("14/06/2026");
+    } catch (ParseException e) {
+        e.printStackTrace();
+    }
+
+IMPORTANTE: SimpleDateFormat NÃO é thread-safe. Se for usado em ambiente 
+multithread, cada thread deve ter sua própria instância (ou usar 
+ThreadLocal), pois compartilhar a mesma instância entre threads pode gerar 
+resultados inconsistentes.
+
+
+RESUMO DA RELAÇÃO ENTRE AS TRÊS CLASSES
+------------------------------------
+Date       -> representa o instante no tempo (timestamp puro)
+Calendar   -> permite manipular esse instante por campos (dia, mês, ano...)
+DateFormat -> converte entre Date/Calendar e texto legível para humanos
+
+Observação histórica: essas três classes são consideradas "legadas". Desde 
+o Java 8, a API java.time (LocalDate, LocalDateTime, DateTimeFormatter, etc.) 
+é a recomendada por ser imutável, thread-safe e ter API mais intuitiva — mas 
+o conhecimento de Date/Calendar/DateFormat ainda é importante por aparecer 
+em código legado e em muitas bases de projetos antigos.
